@@ -4,9 +4,16 @@
 
 #import "MAStringWithFormat.h"
 
+void testStringWithFormat();
+void testRanges();
 
 int main(int argc, char **argv)
 {
+   // testStringWithFormat();
+    testRanges();
+}
+
+void testStringWithFormat() {
     #define TEST(expected, ...) do { \
         NSString *actual = MAStringWithFormat(__VA_ARGS__); \
         if(![(expected) isEqual: actual]) { \
@@ -64,4 +71,38 @@ int main(int argc, char **argv)
     TEST(@"", @"%");
     TEST(@"", @"%l");
     TEST(@"", @"%ll");
+}
+
+BOOL compareRanges(NSArray *expected, NSArray *actual);
+
+void testRanges() {
+    #define TEST_RANGE(expectedString, expectedRanges, ...) do { \
+        MAStringAndTokenRanges *actual = MAStringAndTokenRangesWithFormat(__VA_ARGS__); \
+        if(![(expectedString) isEqual: actual.string]) { \
+            NSLog(@"FAILURE! Expected %@ got %@", expectedString, actual.string); \
+        } \
+        else if(!compareRanges(expectedRanges, actual.tokenRanges)) { \
+            NSLog(@"FAILURE! Expected %@ got %@", expectedRanges, actual.tokenRanges); \
+        } \
+        else { \
+            NSLog(@"Passed test: %@", expectedString); \
+        } \
+        } while(0);
+
+    TEST_RANGE(@"foo 1", @[[NSValue valueWithRange:NSMakeRange(4, 1)]], @"foo %d", 1);
+    TEST_RANGE(@"foo 1.5", @[[NSValue valueWithRange:NSMakeRange(4, 3)]], @"foo %f", 1.5);
+    TEST_RANGE(@"foo bar", @[[NSValue valueWithRange:NSMakeRange(4, 3)]], @"foo %@", @"bar");
+    TEST_RANGE(@"foo bar", @[[NSValue valueWithRange:NSMakeRange(4, 3)]], @"foo %s", "bar");
+    
+    TEST_RANGE(@"-1", @[[NSValue valueWithRange:NSMakeRange(0, 2)]], @"%ld", -1L);
+    TEST_RANGE(@"1", @[[NSValue valueWithRange:NSMakeRange(0, 1)]], @"%lld", 1LL);
+    
+    TEST_RANGE(@"%", @[], @"%%");
+
+    NSArray *ranges = @[[NSValue valueWithRange:NSMakeRange(4, 3)],[NSValue valueWithRange:NSMakeRange(8, 3)]];
+    TEST_RANGE(@"foo bar baz", ranges, @"foo %@ %@", @"bar", @"baz");
+}
+
+BOOL compareRanges(NSArray *expected, NSArray *actual) {
+    return [expected isEqualToArray:actual];
 }
