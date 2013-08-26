@@ -15,7 +15,6 @@ Example
 =======
     TTTAttributedLabel *label = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
     label.delegate = self;
-
     MAStringAndTokenRanges *result = MAStringAndTokenRangesWithFormat(@"I love visiting %@.", @"github.com");
     NSMutableAttributedString *text = [[NSMutableAttributedString alloc] initWithString:result.string];
     label.text = text;
